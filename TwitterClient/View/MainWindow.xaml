@@ -1,0 +1,61 @@
+﻿<Window x:Class="TwitterClient.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:TwitterClient.View"
+        Height="450" Width="385"
+        ResizeMode="NoResize"
+        DataContext="{Binding Source={StaticResource vmMainWindow}}"
+        Title="{Binding Path=AppTitle, Mode=OneTime}">
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding MainWindowLoadedCommand}"/>
+        </i:EventTrigger>
+        <i:EventTrigger EventName="Closed">
+            <i:InvokeCommandAction Command="{Binding MainWindowClosedCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+
+        <Menu IsMainMenu="True" VerticalAlignment="Center" Margin="0,0,0,1" Grid.Row="0">
+            <MenuItem Header="_File">
+                <MenuItem Header="Import Followers From File" Command="{Binding ImportClickCommand}"/>
+                <MenuItem Header="Exit" Command="{Binding ExitApplicationCommand}"/>
+            </MenuItem>
+        </Menu>
+
+        <TabControl x:Name="tcMain" Grid.Row="1">
+
+            <!-- Main Tab -->
+            <TabItem Header="Main">
+                <Border  Margin="10" BorderBrush="#FFCFCFCF" BorderThickness="1">
+                    <local:MainTabView DataContext="{Binding MainTabViewModel}"/>
+                </Border>
+            </TabItem>
+
+            <!-- Messages Tab-->
+            <TabItem Header="Messages">
+                <Border  Margin="10" BorderBrush="#FFCFCFCF" BorderThickness="1" Height="340">
+                    <local:MessageTabView DataContext="{Binding MessageTabViewModel}"/>
+                </Border>
+            </TabItem>
+
+            <!-- Log tab -->
+            <TabItem Header="Log" Padding="5" Height="30" VerticalAlignment="Top">
+                <Border  Margin="10" BorderBrush="#FFCFCFCF" BorderThickness="1" Height="340">
+                    <local:LogTabView DataContext="{Binding LogTabViewModel}"/>
+                </Border>
+            </TabItem>
+
+        </TabControl>
+
+    </Grid>
+    
+</Window>

@@ -1,0 +1,71 @@
+﻿<UserControl x:Class="TwitterClient.View.MainTabView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TwitterClient.View"
+             mc:Ignorable="d" d:DesignWidth="300" Height="343.142">
+    <Grid Name="MainGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="startStreamBtn" Content="Start" Grid.Column="0" Width="80" Height="30" Command="{Binding StartClickCommand}" />
+            <Button x:Name="stopStreamBtn" Content="Stop" Grid.Column="1" Margin="10,0,0,0" Width="80" Command="{Binding StopClickCommand}"/>
+            <Button x:Name="addFollowerBtn" Content="Add Follower" Grid.Column="2" Margin="10,0,0,0" Width="85" Padding="5" Command="{Binding AddFollowerClickCommand}" />
+        </Grid>
+
+        <CheckBox Grid.Row="1" Margin="10" IsChecked="{Binding IsDisplayTime}">Display Time In Reply</CheckBox>
+
+        <Grid Grid.Row="2" Margin="10,0,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto" MinWidth="159"/>
+                <ColumnDefinition Width="auto" MinWidth="159"/>
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Row="0" Grid.Column="0" Margin="5,0">Screen Name:</Label>
+            <Label Grid.Row="0" Grid.Column="1" Margin="5,0">Filter Word:</Label>
+
+            <TextBox x:Name="txtFollowerName"  Margin="5" Grid.Row="1" Grid.Column="0" Text="{Binding ScreenNameString}"></TextBox>
+            <TextBox x:Name="txtFollowerFilter" Margin="5" Grid.Row="1" Grid.Column="1" Text="{Binding FilterString}"></TextBox>
+        </Grid>
+
+        <Label Grid.Row="3" Margin="10,5,0,0" >Followers List:</Label>
+
+        <ListView x:Name="lvFollowers" SelectionMode="Single" ContextMenuOpening="lvFollowers_ContextMenuOpening" Margin="10" Grid.Row="8" Width="auto" Height="150" ItemsSource="{Binding FollowersList}"  >
+
+            <ListView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Edit" Command="{Binding EditFollowerClickCommand}" CommandParameter= "{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedIndex}" />
+                    <MenuItem Header="Get Tweets" Command="{Binding GetTweetClickCommand}" CommandParameter= "{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
+                    <MenuItem Header="Delete" Command="{Binding DeleteFollowerClickCommand}" CommandParameter= "{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedIndex}" />
+                </ContextMenu>
+            </ListView.ContextMenu>
+
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Name" Width="90" DisplayMemberBinding="{Binding ScreenName}"/>
+                    <GridViewColumn Header="Id" Width="80" DisplayMemberBinding="{Binding IdStr}"/>
+                    <GridViewColumn Header="#" Width="30" DisplayMemberBinding="{Binding NoOfReplies}"/>
+                    <GridViewColumn Header="Filter" Width="70" DisplayMemberBinding="{Binding Filter}"/>
+                    <GridViewColumn Header="Time" Width="40" DisplayMemberBinding="{Binding DisplayTime}"/>
+                </GridView>
+            </ListView.View>
+
+        </ListView>
+    </Grid>
+</UserControl>
