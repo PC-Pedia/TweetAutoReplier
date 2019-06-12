@@ -3,7 +3,7 @@
 A Tweet Responder for Windows, based on WPF MVVM.
 
 **Setup instructions**:
-- Fill in account credentials (Constants/TwitterAuth.cs) from https://apps.twitter.com/.
+- Fill in account credentials (Constants/TwitterAuth.cs) by creating an app from [here](https://developer.twitter.com/apps).
 
 **Dependencies**:
-- Tweetinvi
+- [Tweetinvi](https://github.com/linvi/tweetinvi)
