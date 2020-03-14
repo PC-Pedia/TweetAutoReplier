@@ -218,6 +218,12 @@ namespace TwitterClient.ViewModel
                 return;
             }
 
+            if (StreamActive)
+            {
+                MessageBox.Show("Stream already running.");
+                return;
+            }
+
             stream.StartStreamMatchingAllConditionsAsync();
         }
 
@@ -251,12 +257,12 @@ namespace TwitterClient.ViewModel
 
         private void StreamStarted(object sender, EventArgs e)
         {
-            // log event
+            tabs.LogTabViewModel.LogOnGuiThread("Stream started.");
         }
 
         private void StreamStopped(object sender, StreamExceptionEventArgs e)
         {
-            // log event
+            tabs.LogTabViewModel.LogOnGuiThread("Stream stopped.");
         }
 
         private void TweetReceived(object sender, MatchedTweetReceivedEventArgs e)
@@ -270,8 +276,8 @@ namespace TwitterClient.ViewModel
 
             if (!tweet.IsRetweet && IsNotReply(tweet))
             {
-                string text = $"{tweet.CreatedBy.ScreenName} tweeted {tweet.Text}";
-                // log text
+                string tweeted = $"{tweet.CreatedBy.ScreenName} tweeted {tweet.Text}";
+                tabs.LogTabViewModel.LogOnGuiThread(tweeted);
 
                 var follower = Followers.SingleOrDefault(x => x.IdStr.Equals(tweet.CreatedBy.IdStr));
 
@@ -295,7 +301,7 @@ namespace TwitterClient.ViewModel
                     Tweet.PublishTweetInReplyTo(reply, tweet.Id);
 
                     string sent = $"Sent \"{reply}\" to {tweet.CreatedBy.ScreenName}";
-                    // log sent
+                    tabs.LogTabViewModel.LogOnGuiThread(sent);
                 }
             }
         }
