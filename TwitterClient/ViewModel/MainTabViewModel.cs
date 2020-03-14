@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic;
+using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
@@ -10,332 +11,317 @@ using Tweetinvi;
 using Tweetinvi.Events;
 using Tweetinvi.Models;
 using Tweetinvi.Streaming;
-using TwitterClient.Contracts;
-using TwitterClient.Helpers;
-using TwitterClient.Model;
+using TwitterClient.Common;
+using TwitterClient.Models;
 
 namespace TwitterClient.ViewModel
 {
-    public class MainTabViewModel : Contracts.NotifyPropertyChangedBase
+    public class MainTabViewModel : BaseNotify
     {
-        #region Fields
+        private readonly IFilteredStream stream;
+        private readonly IAppTabsViewModels tabs;
+        public ObservableCollection<Follower> Followers { get; }
 
-        private IAppTabsViewModels _IAppTabsViewModels;
-        private IFilteredStream _filteredStream = Stream.CreateFilteredStream();
-
-        #endregion
-
-        public MainTabViewModel(IAppTabsViewModels IAppTabsViewModels)
+        public MainTabViewModel(IAppTabsViewModels tabs)
         {
-            _IAppTabsViewModels = IAppTabsViewModels;
+            this.tabs = tabs;
 
-            FollowersList.CollectionChanged += FollowersList_CollectionChanged;
+            stream = Stream.CreateFilteredStream();
+            stream.StreamStopped += StreamStopped;
+            stream.StreamStarted += StreamStarted;
+            stream.MatchingTweetReceived += TweetReceived;
 
-            _filteredStream.MatchingTweetReceived += TweetReceived;
-            _filteredStream.StreamStopped += StreamStopped;
-            _filteredStream.StreamStarted += StreamStarted;
+            Followers = new ObservableCollection<Follower>();
+            Followers.CollectionChanged += FollowersChanged;
 
-            _startClickCommand = new RelayCommand(new Action<object>(StartClicked));
-            _stopClickCommand = new RelayCommand(new Action<object>(StopClicked));
+            StartStreamCommand = new RelayCommand(StartStreamClicked);
+            StopStreamCommand = new RelayCommand(StopStreamClicked);
 
-            _addFollowerClickCommand = new RelayCommand(new Action<object>(AddFollowerClicked));
-            _editFollowerClickCommand = new RelayCommand(new Action<object>(EditFollowerClicked));
-            _deleteFollowerClickCommand = new RelayCommand(new Action<object>(DeleteFollowerClicked));
-            _getTweetClickCommand = new RelayCommand(new Action<object>(GetTweetClicked));
+            AddFollowerCommand = new RelayCommand(AddFollowerClicked);
+            EditFollowerCommand = new RelayCommand(EditFollowerClicked);
+            DeleteFollowerCommand = new RelayCommand(DeleteFollowerClicked);
+            GetTweetFollowerCommand = new RelayCommand(GetTweetClicked);
         }
 
-        #region Properties
-
-        public ObservableCollection<Follower> FollowersList { get; } = new ObservableCollection<Follower>();
-
-        private string _screenNameString;
-        public string ScreenNameString
+        private string _screenName;
+        public string ScreenName
         {
             get
             {
-                return _screenNameString;
+                return _screenName;
             }
             set
             {
-                _screenNameString = value;
-                OnPropertyChanged("ScreenNameString");
+                _screenName = value;
+                RaisePropChanged("ScreenName");
             }
         }
 
-        private string _filterString;
-        public string FilterString
+        private string _filter;
+        public string Filter
         {
             get
             {
-                return _filterString;
+                return _filter;
             }
             set
             {
-                _filterString = value;
-                OnPropertyChanged("FilterString");
+                _filter = value;
+                RaisePropChanged("Filter");
             }
         }
 
-        private bool _IsDisplayTime;
-        public bool IsDisplayTime
+        private bool _displayTime;
+        public bool DisplayTime
         {
             get
             {
-                return _IsDisplayTime;
+                return _displayTime;
             }
             set
             {
-                _IsDisplayTime = value;
-                OnPropertyChanged("IsDisplayTime");
+                _displayTime = value;
+                RaisePropChanged("DisplayTime");
             }
         }
 
-        private bool isStreamActive { get { return _filteredStream.StreamState == StreamState.Running; } }
-
-        private MessageTabViewModel _messageTabViewModel { get { return _IAppTabsViewModels.MessageTabViewModel; } }
-
-        private LogTabViewModel _logTabViewModel { get { return _IAppTabsViewModels.LogTabViewModel; } }
-
-        #endregion
-
-        #region Methods
-
-        private void AddFollowerClicked(object arg0)
+        private bool StreamActive
         {
-            if (isStreamActive)
+            get
             {
-                MessageBox.Show("Stream is active!, please stop it before adding new name(s).");
+                return stream.StreamState == StreamState.Running;
+            }
+        }
+
+        private void AddFollowerClicked(object obj)
+        {
+            if (StreamActive)
+            {
+                MessageBox.Show("Stop the stream before adding new followers.");
                 return;
             }
 
-            if (String.IsNullOrEmpty(ScreenNameString))
+            if (string.IsNullOrEmpty(ScreenName))
             {
                 MessageBox.Show("Screen Name is null or empty.");
                 return;
             }
 
-            var follower = FollowersList.SingleOrDefault(x => x.ScreenName.Equals(ScreenNameString));
+            Follower f = Followers.SingleOrDefault(x => x.ScreenName.Equals(ScreenName));
 
-            if (follower == null)
+            if (f == null)
             {
                 long id;
 
-                if ((id = getFollowerId(ScreenNameString)) == 0) return;
+                if ((id = GetUserId(ScreenName)) == 0)
+                    return;
 
-                FollowersList.Add(new Follower
+                f = new Follower
                 {
-                    ScreenName = ScreenNameString,
+                    ScreenName = ScreenName,
                     IdStr = id.ToString(),
-                    Filter = FilterString,
-                    DisplayTime = IsDisplayTime.ToString(),
-                    NoOfReplies = _messageTabViewModel.MessageList.Count.ToString(),
-                    Messages = _messageTabViewModel.MessageList.ToList()
-                });
+                    Filter = Filter,
+                    DisplayTime = DisplayTime.ToString(),
+                    NoOfReplies = tabs.MessageTabViewModel.MessageList.Count.ToString(),
+                    Messages = tabs.MessageTabViewModel.MessageList.ToList()
+                };
+
+                Followers.Add(f);
             }
             else
             {
-                follower.DisplayTime = IsDisplayTime.ToString();
-                follower.Filter = FilterString;
-                follower.NoOfReplies = _messageTabViewModel.MessageList.Count.ToString();
-                follower.Messages = _messageTabViewModel.MessageList.ToList();
+                f.DisplayTime = DisplayTime.ToString();
+                f.Filter = Filter;
+                f.NoOfReplies = tabs.MessageTabViewModel.MessageList.Count.ToString();
+                f.Messages = tabs.MessageTabViewModel.MessageList.ToList();
             }
 
-            // reset elements to default values
-            ScreenNameString = String.Empty;
-            FilterString = String.Empty;
-            if (IsDisplayTime) IsDisplayTime = false;
-            if (_messageTabViewModel.MessageList.Count > 0) _messageTabViewModel.MessageList.Clear();
-            //
+            ScreenName = "";
+            Filter = "";
+
+            if (DisplayTime)
+                DisplayTime = false;
+
+            if (tabs.MessageTabViewModel.MessageList.Count > 0)
+                tabs.MessageTabViewModel.MessageList.Clear();
         }
 
-        private void DeleteFollowerClicked(object arg0)
+        private void DeleteFollowerClicked(object obj)
         {
-            FollowersList.RemoveAt((int)arg0);
+            int index = (int)obj;
+            Followers.RemoveAt(index);
         }
 
-        private void EditFollowerClicked(object arg0)
+        private void EditFollowerClicked(object obj)
         {
-            var follower = FollowersList.ElementAt((int)arg0);
+            int index = (int)obj;
+            Follower follower = Followers.ElementAt(index);
 
-            ScreenNameString = follower.ScreenName;
-            FilterString = follower.Filter;
-            IsDisplayTime = Convert.ToBoolean(follower.DisplayTime);
+            ScreenName = follower.ScreenName;
+            Filter = follower.Filter;
+            DisplayTime = Convert.ToBoolean(follower.DisplayTime);
 
-            if (_messageTabViewModel.MessageList.Count > 0) _messageTabViewModel.MessageList.Clear();
-            follower.Messages.ForEach(x => _messageTabViewModel.MessageList.Add(x));
-        }
+            if (tabs.MessageTabViewModel.MessageList.Count > 0)
+                tabs.MessageTabViewModel.MessageList.Clear();
 
-        private void GetTweetClicked(object arg0)
-        {
-            var userInput = Microsoft.VisualBasic.Interaction.InputBox("How many tweets do you want to retrieve?\nMaximum tweets can be received is 40.", "Question", "1");
-
-            if (!String.IsNullOrEmpty(userInput))
+            follower.Messages.ForEach(x =>
             {
-                int result;
+                tabs.MessageTabViewModel.MessageList.Add(x);
+            }
+            );
+        }
 
-                if (!int.TryParse(userInput, out result))
+        private void GetTweetClicked(object obj)
+        {
+            string choice = Interaction.InputBox(
+                "How many tweets do you want to retrieve?",
+                "Question",
+                "1"
+            );
+
+            if (!string.IsNullOrEmpty(choice))
+            {
+                int count;
+
+                if (!int.TryParse(choice, out count))
                 {
                     MessageBox.Show("Input needs to be a number.", "Invalid input");
                     return;
                 }
 
-                if (result < 1 || result > 40)
+                if (count < 1 || count > 40)
                 {
                     MessageBox.Show("Input needs to be between 0 to 41.", "Invalid input");
                     return;
                 }
 
-                CursorHelper.ShowWaitCursor();
-                foreach (ITweet tweet in Timeline.GetUserTimeline(((Follower)arg0).ScreenName, result))
+                Follower f = (Follower)obj;
+
+                System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
+                var tweets = Timeline.GetUserTimeline(f.ScreenName, count);
+                System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
+
+                foreach (ITweet tweet in tweets)
                 {
-                    MessageBox.Show($"Created at: {tweet.CreatedAt.ToLocalTime()}\n{tweet.Text}", tweet.CreatedBy.ScreenName);
+                    string createdBy = tweet.CreatedBy.ScreenName;
+                    string text = $"Created at: {tweet.CreatedAt.ToLocalTime()}\n{tweet.Text}";
+                    MessageBox.Show(text, createdBy);
                 }
-                CursorHelper.ShowDefaultCursor();
             }
         }
 
-        private void StartClicked(object arg0)
+        private void StartStreamClicked(object obj)
         {
-            if (_filteredStream.FollowingUserIds.Count == 0)
+            if (stream.FollowingUserIds.Count == 0)
             {
-                MessageBox.Show("No followers.");
+                MessageBox.Show("No followers to follow.");
                 return;
             }
 
-            _filteredStream.StartStreamMatchingAllConditionsAsync();
+            stream.StartStreamMatchingAllConditionsAsync();
         }
 
-        private void StopClicked(object arg0)
+        private void StopStreamClicked(object obj)
         {
-            if (isStreamActive) _filteredStream.StopStream();
+            if (StreamActive)
+                stream.StopStream();
         }
 
-        private long getFollowerId(string name)
+        private long GetUserId(string name)
         {
-            long id = 0;
-
             try
             {
-                if (!String.IsNullOrEmpty(name))
+                if (!string.IsNullOrEmpty(name))
                 {
-                    CursorHelper.ShowWaitCursor();
-                    id = User.GetUserFromScreenName(name).Id;
-                    CursorHelper.ShowDefaultCursor();
+                    System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
+                    IUser user = User.GetUserFromScreenName(name);
+                    System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
+                    return user.Id;
                 }
             }
             catch
             {
-                CursorHelper.ShowDefaultCursor();
+                System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
                 MessageBox.Show("User does not exist.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return 0;
             }
 
-            return id;
+            return 0;
         }
-
-        #endregion
-
-        #region Event Handlers
 
         private void StreamStarted(object sender, EventArgs e)
         {
-            _logTabViewModel.SafeLog("Stream started.");
+            // log event
         }
 
         private void StreamStopped(object sender, StreamExceptionEventArgs e)
         {
-            _logTabViewModel.SafeLog("Stream stopped.");
-
-            if (e.Exception != null)
-            {
-                _logTabViewModel.SafeLog(e.Exception.Message);
-
-                if (Regex.IsMatch(e.Exception.Message, "exceeded connection limit", RegexOptions.IgnoreCase)) return;
-
-                ExceptionsFile.AppendExceptionToFile(e.Exception);
-
-                for (int x = 5; x-- > 0;)
-                {
-                    _logTabViewModel.SafeLog($"Restarting in: {x} seconds.");
-                    System.Threading.Thread.Sleep(1000);
-                }
-
-                StartClicked(null);
-            }
+            // log event
         }
 
         private void TweetReceived(object sender, MatchedTweetReceivedEventArgs e)
         {
+            bool IsNotReply(ITweet t)
+            {
+                return (t.InReplyToScreenName == null && t.InReplyToStatusId == null);
+            }
+
             var tweet = e.Tweet;
 
-           // _logTabViewModel.SafeLog($"InReplyToStatusIdStr: {tweet.InReplyToStatusIdStr}, inReplyToScreenName: {tweet.InReplyToScreenName}");
-
-            if (!tweet.IsRetweet && (tweet.InReplyToScreenName == null && tweet.InReplyToStatusId == null))
+            if (!tweet.IsRetweet && IsNotReply(tweet))
             {
-                _logTabViewModel.SafeLog($"{tweet.CreatedBy.ScreenName} tweeted {tweet.Text}");
+                string text = $"{tweet.CreatedBy.ScreenName} tweeted {tweet.Text}";
+                // log text
 
-                var follower = FollowersList.SingleOrDefault(x => x.IdStr.Equals(tweet.CreatedBy.IdStr));
+                var follower = Followers.SingleOrDefault(x => x.IdStr.Equals(tweet.CreatedBy.IdStr));
 
-                if (follower == null) return;
+                if (follower == null)
+                    return;
 
-                if (!String.IsNullOrEmpty(follower.Filter) && !Regex.IsMatch(tweet.Text, follower.Filter, RegexOptions.IgnoreCase)) return;
+                if (!string.IsNullOrEmpty(follower.Filter) &&
+                    !Regex.IsMatch(tweet.Text, follower.Filter, RegexOptions.IgnoreCase))
+                    return;
 
                 if (follower.Messages.Count > 0)
                 {
-                    var textToPublish = $"@{tweet.CreatedBy.ScreenName} {follower.Messages.ElementAt(new Random().Next(follower.Messages.Count))}";
+                    string reply = $"@{tweet.CreatedBy.ScreenName} {follower.Messages.ElementAt(new Random().Next(follower.Messages.Count))}";
 
                     if (Convert.ToBoolean(follower.DisplayTime))
-                        textToPublish += $" // {DateTime.Now.ToLocalTime().ToString("HH:mm:ss")}";
+                    {
+                        string time = DateTime.Now.ToLocalTime().ToString("HH:mm:ss");
+                        reply += $" // {time}";
+                    }
 
-                    Tweet.PublishTweetInReplyTo(textToPublish, tweet.Id);
+                    Tweet.PublishTweetInReplyTo(reply, tweet.Id);
 
-                    _logTabViewModel.SafeLog($"Replied '{textToPublish}' to '{tweet.CreatedBy.ScreenName}'");
+                    string sent = $"Sent \"{reply}\" to {tweet.CreatedBy.ScreenName}";
+                    // log sent
                 }
             }
         }
 
-        private void FollowersList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void FollowersChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
-                    _filteredStream.AddFollow(long.Parse(((Follower)e.NewItems[0]).IdStr));
+                    stream.AddFollow(long.Parse(((Follower)e.NewItems[0]).IdStr));
                     break;
                 case NotifyCollectionChangedAction.Remove:
-                    _filteredStream.RemoveFollow(long.Parse(((Follower)e.OldItems[0]).IdStr));
+                    stream.RemoveFollow(long.Parse(((Follower)e.OldItems[0]).IdStr));
                     break;
                 case NotifyCollectionChangedAction.Reset:
-                    if (_filteredStream.FollowingUserIds.Count > 0) _filteredStream.ClearFollows();
+                    if (stream.FollowingUserIds.Count > 0) stream.ClearFollows();
                     break;
             }
         }
 
-        #endregion
+        public ICommand StartStreamCommand { get; set; }
+        public ICommand StopStreamCommand { get; set; }
 
-        #region Commands
-
-        private ICommand _startClickCommand;
-        public ICommand StartClickCommand { get { return _startClickCommand; } }
-
-
-        private ICommand _stopClickCommand;
-        public ICommand StopClickCommand { get { return _stopClickCommand; } }
-
-
-        private ICommand _addFollowerClickCommand;
-        public ICommand AddFollowerClickCommand { get { return _addFollowerClickCommand; } }
-
-
-        private ICommand _deleteFollowerClickCommand;
-        public ICommand DeleteFollowerClickCommand { get { return _deleteFollowerClickCommand; } }
-
-
-        private ICommand _editFollowerClickCommand;
-        public ICommand EditFollowerClickCommand { get { return _editFollowerClickCommand; } }
-
-
-        private ICommand _getTweetClickCommand;
-        public ICommand GetTweetClickCommand { get { return _getTweetClickCommand; } }
-
-        #endregion
+        public ICommand AddFollowerCommand { get; set; }
+        public ICommand DeleteFollowerCommand { get; set; }
+        public ICommand EditFollowerCommand { get; set; }
+        public ICommand GetTweetFollowerCommand { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using TwitterClient.ViewModel;
 
 namespace TwitterClient
 {
@@ -10,6 +11,8 @@ namespace TwitterClient
         public MainWindow()
         {
             InitializeComponent();
+
+            DataContext = new MainWindowViewModel(this);
         }
     }
 }

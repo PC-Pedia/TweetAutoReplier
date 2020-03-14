@@ -2,6 +2,6 @@
 {
     public static class General
     {
-        public const int MaxMessageLength = 140;
+        public const int MaxMessageLength = 280;
     }
 }

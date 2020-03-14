@@ -3,69 +3,85 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:TwitterClient.View"
-             mc:Ignorable="d" d:DesignWidth="300" Height="343.142">
-    <Grid Name="MainGrid">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-        </Grid.RowDefinitions>
+             mc:Ignorable="d" 
+             Width="350" 
+             Height="350">
+    <StackPanel>
 
-        <Grid Grid.Row="0" Margin="10">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="auto"/>
-            </Grid.ColumnDefinitions>
-            <Button x:Name="startStreamBtn" Content="Start" Grid.Column="0" Width="80" Height="30" Command="{Binding StartClickCommand}" />
-            <Button x:Name="stopStreamBtn" Content="Stop" Grid.Column="1" Margin="10,0,0,0" Width="80" Command="{Binding StopClickCommand}"/>
-            <Button x:Name="addFollowerBtn" Content="Add Follower" Grid.Column="2" Margin="10,0,0,0" Width="85" Padding="5" Command="{Binding AddFollowerClickCommand}" />
-        </Grid>
+        <StackPanel Margin="10" Orientation="Horizontal">
+            <Button 
+                x:Name="btnStartStream" 
+                Content="Start" Margin="5" 
+                Width="80" 
+                Height="30"
+                Command="{Binding StartStreamCommand}" />
+            <Button 
+                x:Name="btnStopStream" 
+                Content="Stop"
+                Margin="5" 
+                Width="80" 
+                Command="{Binding StopStreamCommand}"/>
+            <Button 
+                x:Name="btnAddFollower"
+                Content="Add Follower" 
+                Margin="5" 
+                Width="85" 
+                Command="{Binding AddFollowerCommand}" />
+        </StackPanel>
 
-        <CheckBox Grid.Row="1" Margin="10" IsChecked="{Binding IsDisplayTime}">Display Time In Reply</CheckBox>
+        <StackPanel Margin="10" HorizontalAlignment="Left">
+            <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
 
-        <Grid Grid.Row="2" Margin="10,0,0,0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto" MinWidth="159"/>
-                <ColumnDefinition Width="auto" MinWidth="159"/>
-            </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <Label>Screen Name:</Label>
+                    <TextBox x:Name="txtScreenName" Margin="5" Width="120" Text="{Binding ScreenName}"></TextBox>
+                </StackPanel>
 
-            <Label Grid.Row="0" Grid.Column="0" Margin="5,0">Screen Name:</Label>
-            <Label Grid.Row="0" Grid.Column="1" Margin="5,0">Filter Word:</Label>
+                <StackPanel>
+                    <Label>Filter (RegEx):</Label>
+                    <TextBox x:Name="txtFilter" Margin="5" Width="120" Text="{Binding Filter}"></TextBox>
+                </StackPanel>
 
-            <TextBox x:Name="txtFollowerName"  Margin="5" Grid.Row="1" Grid.Column="0" Text="{Binding ScreenNameString}"></TextBox>
-            <TextBox x:Name="txtFollowerFilter" Margin="5" Grid.Row="1" Grid.Column="1" Text="{Binding FilterString}"></TextBox>
-        </Grid>
+            </StackPanel>
 
-        <Label Grid.Row="3" Margin="10,5,0,0" >Followers List:</Label>
+            <CheckBox Margin="5" IsChecked="{Binding DisplayTime}">
+                Attach Date and Time to Reply
+            </CheckBox>
 
-        <ListView x:Name="lvFollowers" SelectionMode="Single" ContextMenuOpening="lvFollowers_ContextMenuOpening" Margin="10" Grid.Row="8" Width="auto" Height="150" ItemsSource="{Binding FollowersList}"  >
+        </StackPanel>
 
-            <ListView.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Header="Edit" Command="{Binding EditFollowerClickCommand}" CommandParameter= "{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedIndex}" />
-                    <MenuItem Header="Get Tweets" Command="{Binding GetTweetClickCommand}" CommandParameter= "{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
-                    <MenuItem Header="Delete" Command="{Binding DeleteFollowerClickCommand}" CommandParameter= "{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedIndex}" />
-                </ContextMenu>
-            </ListView.ContextMenu>
+        <StackPanel Margin="10">
+            <Label >Followers List:</Label>
 
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="Name" Width="90" DisplayMemberBinding="{Binding ScreenName}"/>
-                    <GridViewColumn Header="Id" Width="80" DisplayMemberBinding="{Binding IdStr}"/>
-                    <GridViewColumn Header="#" Width="30" DisplayMemberBinding="{Binding NoOfReplies}"/>
-                    <GridViewColumn Header="Filter" Width="70" DisplayMemberBinding="{Binding Filter}"/>
-                    <GridViewColumn Header="Time" Width="40" DisplayMemberBinding="{Binding DisplayTime}"/>
-                </GridView>
-            </ListView.View>
+            <ListView 
+                x:Name="lvFollowers" 
+                SelectionMode="Single" 
+                ContextMenuOpening="lvFollowers_ContextMenuOpening" 
+                Width="auto" 
+                Height="150" 
+                ItemsSource="{Binding Followers}"  >
 
-        </ListView>
-    </Grid>
+                <ListView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Edit" Command="{Binding EditFollowerCommand}" CommandParameter= "{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedIndex}" />
+                        <MenuItem Header="Get Tweets" Command="{Binding GetTweetFollowerCommand}" CommandParameter= "{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
+                        <MenuItem Header="Delete" Command="{Binding DeleteFollowerCommand}" CommandParameter= "{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedIndex}" />
+                    </ContextMenu>
+                </ListView.ContextMenu>
+
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Name" Width="90" DisplayMemberBinding="{Binding ScreenName}"/>
+                        <GridViewColumn Header="Id" Width="80" DisplayMemberBinding="{Binding IdStr}"/>
+                        <GridViewColumn Header="#" Width="30" DisplayMemberBinding="{Binding NoOfReplies}"/>
+                        <GridViewColumn Header="Filter" Width="70" DisplayMemberBinding="{Binding Filter}"/>
+                        <GridViewColumn Header="Time" Width="40" DisplayMemberBinding="{Binding DisplayTime}"/>
+                    </GridView>
+                </ListView.View>
+
+            </ListView>
+            
+        </StackPanel>
+        
+    </StackPanel>
 </UserControl>

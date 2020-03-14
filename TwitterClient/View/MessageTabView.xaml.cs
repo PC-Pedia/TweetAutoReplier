@@ -1,5 +1,4 @@
 ﻿using System.Windows.Controls;
-using TwitterClient.ViewModel;
 
 namespace TwitterClient.View
 {

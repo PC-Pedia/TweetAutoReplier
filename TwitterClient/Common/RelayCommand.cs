@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace TwitterClient.Contracts
+namespace TwitterClient.Common
 {
     class RelayCommand : ICommand
     {

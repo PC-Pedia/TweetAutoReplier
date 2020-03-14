@@ -1,112 +1,96 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Input;
-
 using Tweetinvi;
-
-using TwitterClient.Model;
-using TwitterClient.Contracts;
+using TwitterClient.Common;
 using TwitterClient.Constants;
+using TwitterClient.FileHandlers;
 
 namespace TwitterClient.ViewModel
 {
-    public class MainWindowViewModel : NotifyPropertyChangedBase, IAppTabsViewModels
+    public class MainWindowViewModel : BaseNotify, IAppTabsViewModels
     {
-        public MainWindowViewModel()
-        {
-            CheckConnectivity();
-
-            SetTwitterCredentials();
-
-            _mainWindowClosedCommand = new RelayCommand(new Action<object>(MainWindow_Closed));
-            _mainWindowLoadedCommand = new RelayCommand(new Action<object>(MainWindow_Loaded));
-
-            _importClickCommand = new RelayCommand(new Action<object>(ImportClicked));
-            _exitApplicationCommand = new RelayCommand(new Action<object>(ExitApplicationClicked));
-
-            MainTabViewModel = new MainTabViewModel(this);
-            MessageTabViewModel = new MessageTabViewModel(this);
-            LogTabViewModel = new LogTabViewModel(this);
-        }
-
-        #region Properties
-
         public MainTabViewModel MainTabViewModel { get; }
         public MessageTabViewModel MessageTabViewModel { get; }
         public LogTabViewModel LogTabViewModel { get; }
 
-        public string AppTitle { get { return $"Tweet Auto Replier - {User.GetAuthenticatedUser().ScreenName}"; } }
+        private readonly MainWindow view;
 
-        #endregion
-
-        #region Methods
-     
-        private void ImportClicked(object arg0)
+        public MainWindowViewModel(MainWindow view)
         {
-            if (MessageBox.Show(
-                "Do you want to clear current followers list?", 
-                "Question",
-                MessageBoxButton.YesNo, 
-                MessageBoxImage.Question) == MessageBoxResult.Yes) MainTabViewModel.FollowersList.Clear();
+            this.view = view;
 
-            FollowersFile.OpenCollectionFromFile()?.ForEach(x => MainTabViewModel.FollowersList.Add(x));
+            view.Closed += viewClosed;
+            view.Loaded += viewLoaded;
+
+            ImportClickCommand = new RelayCommand(ImportClicked);
+            ExitEventCommand = new RelayCommand(ExitClicked);
+
+            MainTabViewModel = new MainTabViewModel(this);
+            MessageTabViewModel = new MessageTabViewModel();
+            LogTabViewModel = new LogTabViewModel();
         }
 
-        private void ExitApplicationClicked(object arg0)
+        private string title = "Tweet Auto Reply - ";
+        public string Title
         {
-            App.Current.Shutdown();
-        }
-
-        private void CheckConnectivity()
-        {
-            if (!Helpers.IPHelper.IsInternetAvailable)
+            get
             {
-                MessageBox.Show("Sorry, no active internet connection has been found.", "Connection Failed");
-                App.Current.Shutdown();
+                return title;
+            }
+            set
+            {
+                title = value;
+                RaisePropChanged("Title");
             }
         }
 
-        private void SetTwitterCredentials()
+        private void viewLoaded(object sender, RoutedEventArgs e)
+        {
+            SetCredentials();
+
+            var me = User.GetAuthenticatedUser();
+
+            if (me != null)
+                Title += me.ScreenName;
+
+            FollowersFile.LoadCollectionFromFile()?.ForEach(x => MainTabViewModel.Followers.Add(x));
+        }
+
+        private void viewClosed(object sender, EventArgs e)
+        {
+            MainTabViewModel.StopStreamCommand.Execute(null);
+
+            FollowersFile.WriteCollectionToFile(MainTabViewModel.Followers);
+        }
+
+        private void ImportClicked(object obj)
+        {
+            if (MessageBox.Show(
+                "Do you want to clear current followers list?",
+                "Question",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question) == MessageBoxResult.Yes) MainTabViewModel.Followers.Clear();
+
+            FollowersFile.OpenCollectionFromFile()?.ForEach(x => MainTabViewModel.Followers.Add(x));
+        }
+
+        private void ExitClicked(object obj)
+        {
+            Application.Current.Shutdown();
+        }
+
+        private void SetCredentials()
         {
             Auth.SetUserCredentials(
                 TwitterAuth.ConsumerKey,
                 TwitterAuth.ConsumerSecret,
                 TwitterAuth.AccessToken,
-                TwitterAuth.AccessTokenSecret);
+                TwitterAuth.AccessTokenSecret
+            );
         }
 
-        #endregion
-
-        #region Event Handlers
-
-        private void MainWindow_Closed(object arg0)
-        {
-            MainTabViewModel.StopClickCommand.Execute(null);
-
-            FollowersFile.WriteCollectionToFile(MainTabViewModel.FollowersList);
-        }
-
-        private void MainWindow_Loaded(object arg0)
-        {
-            FollowersFile.LoadCollectionFromFile()?.ForEach(x => MainTabViewModel.FollowersList.Add(x));
-        }
-
-        #endregion
-
-        #region Commands
-
-        private ICommand _mainWindowClosedCommand;
-        public ICommand MainWindowClosedCommand { get { return _mainWindowClosedCommand; } }
-
-        private ICommand _mainWindowLoadedCommand;
-        public ICommand MainWindowLoadedCommand { get { return _mainWindowLoadedCommand; } }
-
-        private ICommand _importClickCommand;
-        public ICommand ImportClickCommand { get { return _importClickCommand; } }
-
-        private ICommand _exitApplicationCommand;
-        public ICommand ExitApplicationCommand { get { return _exitApplicationCommand; } }
-
-        #endregion
+        public ICommand ImportClickCommand { get; set; }
+        public ICommand ExitEventCommand { get; set; }
     }
 }

@@ -1,40 +1,26 @@
 ﻿using System.Collections.ObjectModel;
-using TwitterClient.Contracts;
-using TwitterClient.Model;
+using System.Windows;
+using TwitterClient.Models;
 
 namespace TwitterClient.ViewModel
 {
     public class LogTabViewModel
     {
-        #region Fields
+        public ObservableCollection<Log> Logs { get; }
 
-        private IAppTabsViewModels _IAppTabsViewModels;
-
-        #endregion
-
-        public LogTabViewModel(IAppTabsViewModels IAppTabsViewModels)
+        public LogTabViewModel()
         {
-            _IAppTabsViewModels = IAppTabsViewModels;
+            Logs = new ObservableCollection<Log>();
         }
 
-        #region Properties
-
-        public ObservableCollection<Log> LogList { get; } = new ObservableCollection<Log>();
-
-        #endregion
-
-        #region Methods
-
-        public void Log(string Text)
+        public void Log(string text)
         {
-            LogList.Add(new Log(Text));
+            Logs.Add(new Log(text));
         }
 
-        public void SafeLog(string Text)
+        public void LogOnGuiThread(string Text)
         {
-            App.Current.Dispatcher.Invoke(() => Log(Text));
+            Application.Current.Dispatcher.Invoke(() => Log(Text));
         }
-
-        #endregion
     }
 }

@@ -2,31 +2,27 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
-using TwitterClient.Contracts;
+using TwitterClient.Common;
 using TwitterClient.Constants;
 
 namespace TwitterClient.ViewModel
 {
-    public class MessageTabViewModel : Contracts.NotifyPropertyChangedBase
+    public class MessageTabViewModel : BaseNotify
     {
-        #region Fields
+        public ObservableCollection<string> MessageList { get; }
 
-        private IAppTabsViewModels _IAppTabsViewModels;
-
-        #endregion
-
-        public MessageTabViewModel(IAppTabsViewModels IAppTabsViewModels)
+        public MessageTabViewModel()
         {
-            _IAppTabsViewModels = IAppTabsViewModels;
+            MessageList = new ObservableCollection<string>();
 
-            _addMessageClickCommand = new RelayCommand(new Action<object>(AddMessageClicked));
-            _editMessageClickCommand = new RelayCommand(new Action<object>(EditMessageClicked));
-            _updateMessageClickCommand = new RelayCommand(new Action<object>(UpdateMessageClicked));
-            _deleteMessageClickCommand = new RelayCommand(new Action<object>(DeleteMessageClicked));
-            _clearMessagesClickCommand = new RelayCommand(new Action<object>(ClearMessagesClicked));
+            _charctersLeft = Convert.ToString(MaxCharLimit);
+
+            AddMessageCommand = new RelayCommand(AddMessageClicked);
+            EditMessageCommand = new RelayCommand(EditMessageClicked);
+            UpdateMessageCommand = new RelayCommand(UpdateMessageClicked);
+            DeleteMessageCommand = new RelayCommand(DeleteMessageClicked);
+            ClearMessagesCommand = new RelayCommand(ClearMessagesClicked);
         }
-
-        #region Properties
 
         private string _message;
         public string MessageString
@@ -38,12 +34,12 @@ namespace TwitterClient.ViewModel
             set
             {
                 _message = value;
-                OnPropertyChanged("MessageString");
-                CharactersLeft = (General.MaxMessageLength - value.Length).ToString();
+                RaisePropChanged("MessageString");
+                CharactersLeft = (MaxCharLimit - value.Length).ToString();
             }
         }
 
-        private string _charctersLeft = General.MaxMessageLength.ToString();
+        private string _charctersLeft;
         public string CharactersLeft
         {
             get
@@ -53,17 +49,19 @@ namespace TwitterClient.ViewModel
             set
             {
                 _charctersLeft = value;
-                OnPropertyChanged("CharactersLeft");
+                RaisePropChanged("CharactersLeft");
             }
         }
 
-        public ObservableCollection<string> MessageList { get; } = new ObservableCollection<string>();
+        public int MaxCharLimit
+        {
+            get
+            {
+                return General.MaxMessageLength;
+            }
+        }
 
-        #endregion
-
-        #region Methods
-
-        private void AddMessageClicked(object arg0)
+        private void AddMessageClicked(object obj)
         {
             MessageList.Add(MessageString);
             MessageString = String.Empty;
@@ -71,51 +69,33 @@ namespace TwitterClient.ViewModel
 
         private int _idxMessage;
 
-        private void UpdateMessageClicked(object arg0)
+        private void UpdateMessageClicked(object obj)
         {
             MessageList[_idxMessage] = MessageString;
-            MessageString = String.Empty;
+            MessageString = "";
         }
 
-        private void EditMessageClicked(object arg0)
+        private void EditMessageClicked(object obj)
         {
-            MessageString = MessageList.ElementAt((int)arg0);
-            _idxMessage = (int)arg0;
+            MessageString = MessageList.ElementAt((int)obj);
+            _idxMessage = (int)obj;
         }
 
-        private void DeleteMessageClicked(object arg0)
+        private void DeleteMessageClicked(object obj)
         {
-            MessageList.RemoveAt((int)arg0);
+            MessageList.RemoveAt((int)obj);
         }
 
-        private void ClearMessagesClicked(object arg0)
+        private void ClearMessagesClicked(object obj)
         {
-            if (MessageList.Count > 0) MessageList.Clear();
+            if (MessageList.Count > 0)
+                MessageList.Clear();
         }
 
-        #endregion
-
-        #region Commands
-
-        private ICommand _addMessageClickCommand;
-        public ICommand AddMessageClickCommand { get { return _addMessageClickCommand; } }
-
-
-        private ICommand _editMessageClickCommand;
-        public ICommand EditMessageClickCommand { get { return _editMessageClickCommand; } }
-
-
-        private ICommand _updateMessageClickCommand;
-        public ICommand UpdateMessageClickCommand { get { return _updateMessageClickCommand; } }
-
-
-        private ICommand _deleteMessageClickCommand;
-        public ICommand DeleteMessageClickCommand { get { return _deleteMessageClickCommand; } }
-
-
-        private ICommand _clearMessagesClickCommand;
-        public ICommand ClearMessagesClickCommand { get { return _clearMessagesClickCommand; } }
-
-        #endregion
+        public ICommand AddMessageCommand { get; set; }
+        public ICommand EditMessageCommand { get; set; }
+        public ICommand UpdateMessageCommand { get; set; }
+        public ICommand DeleteMessageCommand { get; set; }
+        public ICommand ClearMessagesCommand { get; set; }
     }
 }
