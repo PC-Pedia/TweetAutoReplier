@@ -14,12 +14,8 @@ namespace TwitterClient.ViewModel
         public MessageTabViewModel MessageTabViewModel { get; }
         public LogTabViewModel LogTabViewModel { get; }
 
-        private readonly MainWindow view;
-
         public MainWindowViewModel(MainWindow view)
         {
-            this.view = view;
-
             view.Closed += viewClosed;
             view.Loaded += viewLoaded;
 
