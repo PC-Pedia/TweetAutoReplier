@@ -197,7 +197,7 @@ namespace TwitterClient.ViewModels
             }
         }
 
-        private void StartStreamClicked(object obj)
+        private async void StartStreamClicked(object obj)
         {
             if (_stream.FollowingUserIds.Count == 0)
             {
@@ -211,7 +211,7 @@ namespace TwitterClient.ViewModels
                 return;
             }
 
-            _stream.StartStreamMatchingAllConditionsAsync();
+            await _stream.StartStreamMatchingAllConditionsAsync();
         }
 
         private void StopStreamClicked(object obj)
