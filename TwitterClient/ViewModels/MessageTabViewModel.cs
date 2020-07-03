@@ -5,9 +5,9 @@ using System.Windows.Input;
 using TwitterClient.Common;
 using TwitterClient.Constants;
 
-namespace TwitterClient.ViewModel
+namespace TwitterClient.ViewModels
 {
-    public class MessageTabViewModel : BaseNotify
+    public class MessageTabViewModel : BaseViewModel
     {
         public ObservableCollection<string> MessageList { get; }
 

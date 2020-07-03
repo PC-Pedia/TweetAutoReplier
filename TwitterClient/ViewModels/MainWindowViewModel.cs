@@ -5,10 +5,11 @@ using Tweetinvi;
 using TwitterClient.Common;
 using TwitterClient.Constants;
 using TwitterClient.FileHandlers;
+using TwitterClient.Views;
 
-namespace TwitterClient.ViewModel
+namespace TwitterClient.ViewModels
 {
-    public class MainWindowViewModel : BaseNotify, IAppTabsViewModels
+    public class MainWindowViewModel : BaseViewModel, IAppTabsViewModels
     {
         public MainTabViewModel MainTabViewModel { get; }
         public MessageTabViewModel MessageTabViewModel { get; }

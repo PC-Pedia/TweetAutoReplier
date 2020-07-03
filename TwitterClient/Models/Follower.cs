@@ -1,15 +1,15 @@
 ﻿using System.Collections.Generic;
-using TwitterClient.Common;
+using TwitterClient.ViewModels;
 
 namespace TwitterClient.Models
 {
-    public class Follower : BaseNotify
+    public class Follower : BaseViewModel
     {
         private string _screenName;
         public string ScreenName
         {
             get { return _screenName; }
-            set { _screenName = value; RaisePropChanged("ScreenName"); }
+            set { _screenName = value; RaisePropChanged(); }
         }
 
 
@@ -17,7 +17,7 @@ namespace TwitterClient.Models
         public string IdStr
         {
             get { return _idStr; }
-            set { _idStr = value; RaisePropChanged("IdStr"); }
+            set { _idStr = value; RaisePropChanged(); }
         }
 
 
@@ -25,7 +25,7 @@ namespace TwitterClient.Models
         public string NoOfReplies
         {
             get { return _noOfReplies; }
-            set { _noOfReplies = value; RaisePropChanged("NoOfReplies"); }
+            set { _noOfReplies = value; RaisePropChanged(); }
         }
 
 
@@ -33,7 +33,7 @@ namespace TwitterClient.Models
         public string Filter
         {
             get { return _filter; }
-            set { _filter = value; RaisePropChanged("Filter"); }
+            set { _filter = value; RaisePropChanged(); }
         }
 
 
@@ -41,7 +41,7 @@ namespace TwitterClient.Models
         public string DisplayTime
         {
             get { return _displayTime; }
-            set { _displayTime = value; RaisePropChanged("DisplayTime"); }
+            set { _displayTime = value; RaisePropChanged(); }
         }
 
         public List<string> Messages { get; set; } = new List<string>();

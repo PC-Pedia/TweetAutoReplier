@@ -177,24 +177,24 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Common\IAppTabsViewModels.cs" />
-    <Compile Include="ViewModel\LogTabViewModel.cs" />
-    <Compile Include="ViewModel\MainTabViewModel.cs" />
-    <Compile Include="ViewModel\MessageTabViewModel.cs" />
-    <Compile Include="View\LogTabView.xaml.cs">
+    <Compile Include="ViewModels\LogTabViewModel.cs" />
+    <Compile Include="ViewModels\MainTabViewModel.cs" />
+    <Compile Include="ViewModels\MessageTabViewModel.cs" />
+    <Compile Include="Views\LogTabView.xaml.cs">
       <DependentUpon>LogTabView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\MessageTabView.xaml.cs">
+    <Compile Include="Views\MessageTabView.xaml.cs">
       <DependentUpon>MessageTabView.xaml</DependentUpon>
     </Compile>
-    <Page Include="View\LogTabView.xaml">
+    <Page Include="Views\LogTabView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\MainTabView.xaml">
+    <Page Include="Views\MainTabView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\MainWindow.xaml">
+    <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -202,7 +202,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Common\BaseNotify.cs" />
+    <Compile Include="ViewModels\BaseViewModel.cs" />
     <Compile Include="Common\RelayCommand.cs" />
     <Compile Include="Constants\General.cs" />
     <Compile Include="Constants\TwitterAuth.cs" />
@@ -210,15 +210,15 @@
     <Compile Include="FileHandlers\FollowersFile.cs" />
     <Compile Include="Models\Log.cs" />
     <Compile Include="Models\Follower.cs" />
-    <Compile Include="ViewModel\MainWindowViewModel.cs" />
-    <Compile Include="View\MainTabView.xaml.cs">
+    <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="Views\MainTabView.xaml.cs">
       <DependentUpon>MainTabView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\MainWindow.xaml.cs">
+    <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="View\MessageTabView.xaml">
+    <Page Include="Views\MessageTabView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

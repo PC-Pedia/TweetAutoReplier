@@ -1,9 +1,9 @@
 ﻿using System;
-using TwitterClient.Common;
+using TwitterClient.ViewModels;
 
 namespace TwitterClient.Models
 {
-    public class Log : BaseNotify
+    public class Log : BaseViewModel
     {
         public Log(string text)
         {

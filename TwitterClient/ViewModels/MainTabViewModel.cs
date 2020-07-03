@@ -14,22 +14,23 @@ using Tweetinvi.Streaming;
 using TwitterClient.Common;
 using TwitterClient.Models;
 
-namespace TwitterClient.ViewModel
+namespace TwitterClient.ViewModels
 {
-    public class MainTabViewModel : BaseNotify
+    public class MainTabViewModel : BaseViewModel
     {
-        private readonly IFilteredStream stream;
-        private readonly IAppTabsViewModels tabs;
+        private readonly IFilteredStream _stream;
+        private readonly IAppTabsViewModels _tabs;
+
         public ObservableCollection<Follower> Followers { get; }
 
         public MainTabViewModel(IAppTabsViewModels tabs)
         {
-            this.tabs = tabs;
+            _tabs = tabs;
 
-            stream = Stream.CreateFilteredStream();
-            stream.StreamStopped += StreamStopped;
-            stream.StreamStarted += StreamStarted;
-            stream.MatchingTweetReceived += TweetReceived;
+            _stream = Stream.CreateFilteredStream();
+            _stream.StreamStopped += StreamStopped;
+            _stream.StreamStarted += StreamStarted;
+            _stream.MatchingTweetReceived += TweetReceived;
 
             Followers = new ObservableCollection<Follower>();
             Followers.CollectionChanged += FollowersChanged;
@@ -39,8 +40,8 @@ namespace TwitterClient.ViewModel
 
             AddFollowerCommand = new RelayCommand(AddFollowerClicked);
             EditFollowerCommand = new RelayCommand(EditFollowerClicked);
-            DeleteFollowerCommand = new RelayCommand(DeleteFollowerClicked);
-            GetTweetFollowerCommand = new RelayCommand(GetTweetClicked);
+            DeleteFollowerCommand = new GenericRelayCommand<int> { ExecuteDelegate = x => DeleteFollowerClicked(x) };
+            GetTweetFollowerCommand = new GenericRelayCommand<Follower> { ExecuteDelegate = x => GetTweetClicked(x) };
         }
 
         private string _screenName;
@@ -53,7 +54,7 @@ namespace TwitterClient.ViewModel
             set
             {
                 _screenName = value;
-                RaisePropChanged("ScreenName");
+                RaisePropChanged();
             }
         }
 
@@ -67,7 +68,7 @@ namespace TwitterClient.ViewModel
             set
             {
                 _filter = value;
-                RaisePropChanged("Filter");
+                RaisePropChanged();
             }
         }
 
@@ -81,17 +82,11 @@ namespace TwitterClient.ViewModel
             set
             {
                 _displayTime = value;
-                RaisePropChanged("DisplayTime");
+                RaisePropChanged();
             }
         }
 
-        private bool StreamActive
-        {
-            get
-            {
-                return stream.StreamState == StreamState.Running;
-            }
-        }
+        private bool StreamActive => _stream.StreamState == StreamState.Running;
 
         private void AddFollowerClicked(object obj)
         {
@@ -101,39 +96,39 @@ namespace TwitterClient.ViewModel
                 return;
             }
 
-            if (string.IsNullOrEmpty(ScreenName))
+            if (string.IsNullOrWhiteSpace(ScreenName))
             {
-                MessageBox.Show("Screen Name is null or empty.");
+                MessageBox.Show("Screen name is null or empty.");
                 return;
             }
 
-            Follower f = Followers.SingleOrDefault(x => x.ScreenName.Equals(ScreenName));
+            Follower follower = Followers.SingleOrDefault(x => x.ScreenName.Equals(ScreenName));
 
-            if (f == null)
+            if (follower == null)
             {
                 long id;
 
                 if ((id = GetUserId(ScreenName)) == 0)
                     return;
 
-                f = new Follower
+                follower = new Follower
                 {
                     ScreenName = ScreenName,
                     IdStr = id.ToString(),
                     Filter = Filter,
                     DisplayTime = DisplayTime.ToString(),
-                    NoOfReplies = tabs.MessageTabViewModel.MessageList.Count.ToString(),
-                    Messages = tabs.MessageTabViewModel.MessageList.ToList()
+                    NoOfReplies = _tabs.MessageTabViewModel.MessageList.Count.ToString(),
+                    Messages = _tabs.MessageTabViewModel.MessageList.ToList()
                 };
 
-                Followers.Add(f);
+                Followers.Add(follower);
             }
             else
             {
-                f.DisplayTime = DisplayTime.ToString();
-                f.Filter = Filter;
-                f.NoOfReplies = tabs.MessageTabViewModel.MessageList.Count.ToString();
-                f.Messages = tabs.MessageTabViewModel.MessageList.ToList();
+                follower.DisplayTime = DisplayTime.ToString();
+                follower.Filter = Filter;
+                follower.NoOfReplies = _tabs.MessageTabViewModel.MessageList.Count.ToString();
+                follower.Messages = _tabs.MessageTabViewModel.MessageList.ToList();
             }
 
             ScreenName = "";
@@ -142,13 +137,13 @@ namespace TwitterClient.ViewModel
             if (DisplayTime)
                 DisplayTime = false;
 
-            if (tabs.MessageTabViewModel.MessageList.Count > 0)
-                tabs.MessageTabViewModel.MessageList.Clear();
+            if (_tabs.MessageTabViewModel.MessageList.Count > 0)
+                _tabs.MessageTabViewModel.MessageList.Clear();
         }
 
-        private void DeleteFollowerClicked(object obj)
+        private void DeleteFollowerClicked(int index)
         {
-            int index = (int)obj;
+            // int index = (int)obj;
             Followers.RemoveAt(index);
         }
 
@@ -161,17 +156,17 @@ namespace TwitterClient.ViewModel
             Filter = follower.Filter;
             DisplayTime = Convert.ToBoolean(follower.DisplayTime);
 
-            if (tabs.MessageTabViewModel.MessageList.Count > 0)
-                tabs.MessageTabViewModel.MessageList.Clear();
+            if (_tabs.MessageTabViewModel.MessageList.Count > 0)
+                _tabs.MessageTabViewModel.MessageList.Clear();
 
             follower.Messages.ForEach(x =>
             {
-                tabs.MessageTabViewModel.MessageList.Add(x);
+                _tabs.MessageTabViewModel.MessageList.Add(x);
             }
             );
         }
 
-        private void GetTweetClicked(object obj)
+        private void GetTweetClicked(Follower follower)
         {
             string choice = Interaction.InputBox(
                 "How many tweets do you want to retrieve?",
@@ -195,10 +190,8 @@ namespace TwitterClient.ViewModel
                     return;
                 }
 
-                Follower f = (Follower)obj;
-
                 System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
-                var tweets = Timeline.GetUserTimeline(f.ScreenName, count);
+                var tweets = Timeline.GetUserTimeline(follower.ScreenName, count);
                 System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
 
                 foreach (ITweet tweet in tweets)
@@ -212,7 +205,7 @@ namespace TwitterClient.ViewModel
 
         private void StartStreamClicked(object obj)
         {
-            if (stream.FollowingUserIds.Count == 0)
+            if (_stream.FollowingUserIds.Count == 0)
             {
                 MessageBox.Show("No followers to follow.");
                 return;
@@ -224,20 +217,20 @@ namespace TwitterClient.ViewModel
                 return;
             }
 
-            stream.StartStreamMatchingAllConditionsAsync();
+            _stream.StartStreamMatchingAllConditionsAsync();
         }
 
         private void StopStreamClicked(object obj)
         {
             if (StreamActive)
-                stream.StopStream();
+                _stream.StopStream();
         }
 
         private long GetUserId(string name)
         {
             try
             {
-                if (!string.IsNullOrEmpty(name))
+                if (!string.IsNullOrWhiteSpace(name))
                 {
                     System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
                     IUser user = User.GetUserFromScreenName(name);
@@ -257,12 +250,12 @@ namespace TwitterClient.ViewModel
 
         private void StreamStarted(object sender, EventArgs e)
         {
-            tabs.LogTabViewModel.LogOnGuiThread("Stream started.");
+            _tabs.LogTabViewModel.GuiLog("Stream started.");
         }
 
         private void StreamStopped(object sender, StreamExceptionEventArgs e)
         {
-            tabs.LogTabViewModel.LogOnGuiThread("Stream stopped.");
+            _tabs.LogTabViewModel.GuiLog("Stream stopped.");
         }
 
         private void TweetReceived(object sender, MatchedTweetReceivedEventArgs e)
@@ -277,7 +270,7 @@ namespace TwitterClient.ViewModel
             if (!tweet.IsRetweet && IsNotReply(tweet))
             {
                 string tweeted = $"{tweet.CreatedBy.ScreenName} tweeted {tweet.Text}";
-                tabs.LogTabViewModel.LogOnGuiThread(tweeted);
+                _tabs.LogTabViewModel.GuiLog(tweeted);
 
                 var follower = Followers.SingleOrDefault(x => x.IdStr.Equals(tweet.CreatedBy.IdStr));
 
@@ -301,7 +294,7 @@ namespace TwitterClient.ViewModel
                     Tweet.PublishTweetInReplyTo(reply, tweet.Id);
 
                     string sent = $"Sent \"{reply}\" to {tweet.CreatedBy.ScreenName}";
-                    tabs.LogTabViewModel.LogOnGuiThread(sent);
+                    _tabs.LogTabViewModel.GuiLog(sent);
                 }
             }
         }
@@ -311,13 +304,13 @@ namespace TwitterClient.ViewModel
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
-                    stream.AddFollow(long.Parse(((Follower)e.NewItems[0]).IdStr));
+                    _stream.AddFollow(long.Parse(((Follower)e.NewItems[0]).IdStr));
                     break;
                 case NotifyCollectionChangedAction.Remove:
-                    stream.RemoveFollow(long.Parse(((Follower)e.OldItems[0]).IdStr));
+                    _stream.RemoveFollow(long.Parse(((Follower)e.OldItems[0]).IdStr));
                     break;
                 case NotifyCollectionChangedAction.Reset:
-                    if (stream.FollowingUserIds.Count > 0) stream.ClearFollows();
+                    if (_stream.FollowingUserIds.Count > 0) _stream.ClearFollows();
                     break;
             }
         }

@@ -1,4 +1,4 @@
-﻿using TwitterClient.ViewModel;
+﻿using TwitterClient.ViewModels;
 
 namespace TwitterClient.Common
 {

@@ -2,7 +2,7 @@
 using System.Windows;
 using TwitterClient.Models;
 
-namespace TwitterClient.ViewModel
+namespace TwitterClient.ViewModels
 {
     public class LogTabViewModel
     {
@@ -18,9 +18,9 @@ namespace TwitterClient.ViewModel
             Logs.Add(new Log(text));
         }
 
-        public void LogOnGuiThread(string Text)
+        public void GuiLog(string text)
         {
-            Application.Current.Dispatcher.Invoke(() => Log(Text));
+            Application.Current.Dispatcher.Invoke(() => Log(text));
         }
     }
 }

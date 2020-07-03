@@ -1,7 +1,7 @@
 ﻿using System.Windows;
-using TwitterClient.ViewModel;
+using TwitterClient.ViewModels;
 
-namespace TwitterClient
+namespace TwitterClient.Views
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

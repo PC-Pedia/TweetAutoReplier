@@ -1,12 +1,13 @@
 ﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
-namespace TwitterClient.Common
+namespace TwitterClient.ViewModels
 {
-    abstract public class BaseNotify : INotifyPropertyChanged
+    public abstract class BaseViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public void RaisePropChanged(string propName)
+        public void RaisePropChanged([CallerMemberName] string propName = null)
         {
             var e = new PropertyChangedEventArgs(propName);
 

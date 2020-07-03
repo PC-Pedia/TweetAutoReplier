@@ -1,0 +1,65 @@
+﻿<UserControl x:Class="TwitterClient.Views.MessageTabView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             Width="350" 
+             Height="350">
+    <UserControl.Content>
+        <StackPanel>
+
+            <StackPanel Margin="10">
+                <ListView x:Name="lvMessages" SelectionMode="Single" ContextMenuOpening="lvMessages_ContextMenuOpening" Grid.Row="0" Height="115" ItemsSource="{Binding MessageList}" >
+
+                    <ListView.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Edit" Command="{Binding EditMessageCommand}" CommandParameter= "{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedIndex}"/>
+                            <MenuItem Header="Delete" Command="{Binding DeleteMessageCommand}" CommandParameter= "{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedIndex}"/>
+                        </ContextMenu>
+                    </ListView.ContextMenu>
+
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Messages"  Width="220" DisplayMemberBinding="{Binding Mode=OneWay}"/>
+                        </GridView>
+                    </ListView.View>
+
+                </ListView>
+            </StackPanel>
+
+            <StackPanel Margin="10">
+                <TextBlock 
+                x:Name="lblCharsLeft"
+                Margin="5" 
+                Text="{Binding CharactersLeft, Mode=TwoWay}"/>
+
+                <TextBox 
+                x:Name="txtMessage" 
+                TextWrapping="Wrap" 
+                Height="115" 
+                Text="{Binding MessageString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                AcceptsReturn="True" 
+                AcceptsTab="True" 
+                MaxLength="{Binding MaxCharLimit}"/>
+
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button 
+            x:Name="btnAddMessage" 
+            Content="Add" 
+            Height="30" 
+            Width="80" 
+            Command="{Binding AddMessageCommand}"/>
+                <Button 
+            x:Name="btnUpdateMessage" 
+            Content="Update" Margin="5" Width="80" Command="{Binding UpdateMessageCommand}"/>
+                <Button 
+            x:Name="btnClearMessages" 
+            Content="Clear" Margin="5" Padding="5" Width="80" Command="{Binding ClearMessagesCommand}"/>
+            </StackPanel>
+
+        </StackPanel>
+    </UserControl.Content>
+</UserControl>

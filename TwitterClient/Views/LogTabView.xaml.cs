@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 
-namespace TwitterClient.View
+namespace TwitterClient.Views
 {
     /// <summary>
     /// Interaction logic for LogTabView.xaml
