@@ -64,9 +64,9 @@
 
                     <ListView.ContextMenu>
                         <ContextMenu>
-                            <MenuItem Header="Edit" Command="{Binding EditFollowerCommand}" CommandParameter= "{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedIndex}" />
+                            <MenuItem Header="Edit" Command="{Binding EditFollowerCommand}" CommandParameter= "{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
                             <MenuItem Header="Get Tweets" Command="{Binding GetTweetFollowerCommand}" CommandParameter= "{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
-                            <MenuItem Header="Delete" Command="{Binding DeleteFollowerCommand}" CommandParameter= "{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedIndex}" />
+                            <MenuItem Header="Delete" Command="{Binding DeleteFollowerCommand}" CommandParameter= "{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
                         </ContextMenu>
                     </ListView.ContextMenu>
 
