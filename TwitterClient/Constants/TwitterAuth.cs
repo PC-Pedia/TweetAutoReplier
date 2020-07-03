@@ -1,6 +1,6 @@
 ﻿namespace TwitterClient.Constants
 {
-    static class TwitterAuth
+    public static class TwitterAuth
     {
         public const string ConsumerKey = "";
         public const string ConsumerSecret = "";
