@@ -17,11 +17,11 @@ namespace TwitterClient.ViewModels
 
             _charctersLeft = Convert.ToString(MaxCharLimit);
 
-            AddMessageCommand = new RelayCommand(AddMessageClicked);
-            ClearMessagesCommand = new RelayCommand(ClearMessagesClicked);
-            UpdateMessageCommand = new RelayCommand(UpdateMessageClicked);
-            DeleteMessageCommand = new GenericRelayCommand<int>(DeleteMessageClicked);
-            EditMessageCommand = new GenericRelayCommand<int>(EditMessageClicked);
+            AddMessageCommand = new RelayCommand<object>(AddMessageClicked);
+            ClearMessagesCommand = new RelayCommand<object>(ClearMessagesClicked);
+            UpdateMessageCommand = new RelayCommand<object>(UpdateMessageClicked);
+            DeleteMessageCommand = new RelayCommand<int>(DeleteMessageClicked);
+            EditMessageCommand = new RelayCommand<int>(EditMessageClicked);
         }
 
         private string _message;

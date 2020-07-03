@@ -3,29 +3,7 @@ using System.Windows.Input;
 
 namespace TwitterClient.Common
 {
-    public class RelayCommand : ICommand
-    {
-        public event EventHandler CanExecuteChanged;
-
-        private Action<object> _action;
-
-        public RelayCommand(Action<object> action)
-        {
-            _action = action;
-        }
-
-        public bool CanExecute(object parameter)
-        {
-            return true;
-        }
-
-        public void Execute(object parameter)
-        {
-            _action(parameter);
-        }
-    }
-
-    public class GenericRelayCommand<T> : ICommand
+    public class RelayCommand<T> : ICommand
     {
         public Predicate<T> CanExecuteDelegate { get; set; }
         public Action<T> ExecuteDelegate { get; set; }
@@ -49,12 +27,12 @@ namespace TwitterClient.Common
             ExecuteDelegate?.Invoke((T)parameter);
         }
 
-        public GenericRelayCommand(Action<T> executeDelegate)
+        public RelayCommand(Action<T> executeDelegate)
         {
             ExecuteDelegate = executeDelegate;
         }
 
-        public GenericRelayCommand(Action<T> executeDelegate, Predicate<T> canExecuteDelegate) : this(executeDelegate)
+        public RelayCommand(Action<T> executeDelegate, Predicate<T> canExecuteDelegate) : this(executeDelegate)
         {
             CanExecuteDelegate = canExecuteDelegate;
         }

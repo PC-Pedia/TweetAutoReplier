@@ -35,13 +35,13 @@ namespace TwitterClient.ViewModels
             Followers = new ObservableCollection<Follower>();
             Followers.CollectionChanged += FollowersChanged;
 
-            StartStreamCommand = new RelayCommand(StartStreamClicked);
-            StopStreamCommand = new RelayCommand(StopStreamClicked);
+            StartStreamCommand = new RelayCommand<object>(StartStreamClicked);
+            StopStreamCommand = new RelayCommand<object>(StopStreamClicked);
 
-            AddFollowerCommand = new RelayCommand(AddFollowerClicked);
-            EditFollowerCommand = new GenericRelayCommand<Follower>(EditFollowerClicked);
-            DeleteFollowerCommand = new GenericRelayCommand<Follower>(DeleteFollowerClicked);
-            GetTweetFollowerCommand = new GenericRelayCommand<Follower>(GetTweetClicked);
+            AddFollowerCommand = new RelayCommand<object>(AddFollowerClicked);
+            EditFollowerCommand = new RelayCommand<Follower>(EditFollowerClicked);
+            DeleteFollowerCommand = new RelayCommand<Follower>(DeleteFollowerClicked);
+            GetTweetFollowerCommand = new RelayCommand<Follower>(GetTweetClicked);
         }
 
         private string _screenName;

@@ -20,8 +20,8 @@ namespace TwitterClient.ViewModels
             view.Closed += viewClosed;
             view.Loaded += viewLoaded;
 
-            ImportClickCommand = new RelayCommand(ImportClicked);
-            ExitEventCommand = new RelayCommand(ExitClicked);
+            ImportClickCommand = new RelayCommand<object>(ImportClicked);
+            ExitEventCommand = new RelayCommand<object>(ExitClicked);
 
             MainTabViewModel = new MainTabViewModel(this);
             MessageTabViewModel = new MessageTabViewModel();
@@ -38,7 +38,7 @@ namespace TwitterClient.ViewModels
             set
             {
                 title = value;
-                RaisePropChanged("Title");
+                RaisePropChanged();
             }
         }
 
@@ -67,7 +67,8 @@ namespace TwitterClient.ViewModels
                 "Do you want to clear current followers list?",
                 "Question",
                 MessageBoxButton.YesNo,
-                MessageBoxImage.Question) == MessageBoxResult.Yes) MainTabViewModel.Followers.Clear();
+                MessageBoxImage.Question) == MessageBoxResult.Yes)
+                MainTabViewModel.Followers.Clear();
 
             FollowersFile.OpenCollectionFromFile()?.ForEach(x => MainTabViewModel.Followers.Add(x));
         }
