@@ -61,12 +61,15 @@ namespace TwitterClient.ViewModels
             MessageString = "";
         }
 
-        private int _idxMessage;
+        private int _idxMessage = -1;
 
         private void UpdateMessageClicked(object obj)
         {
-            MessageList[_idxMessage] = MessageString;
-            MessageString = "";
+            if (_idxMessage > -1)
+            {
+                MessageList[_idxMessage] = MessageString;
+                MessageString = "";
+            }
         }
 
         private void EditMessageClicked(int index)
