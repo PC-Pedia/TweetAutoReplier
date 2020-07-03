@@ -155,7 +155,8 @@ namespace TwitterClient.ViewModels
             if (_tabs.MessageTabViewModel.MessageList.Count > 0)
                 _tabs.MessageTabViewModel.MessageList.Clear();
 
-            follower.Messages.ForEach(x => {
+            follower.Messages.ForEach(x =>
+            {
                 _tabs.MessageTabViewModel.MessageList.Add(x);
             });
         }
@@ -168,11 +169,9 @@ namespace TwitterClient.ViewModels
                 "1"
             );
 
-            if (!string.IsNullOrEmpty(choice))
+            if (!string.IsNullOrWhiteSpace(choice))
             {
-                int count;
-
-                if (!int.TryParse(choice, out count))
+                if (!int.TryParse(choice, out int count))
                 {
                     MessageBox.Show("Input needs to be a number.", "Invalid input");
                     return;
@@ -180,7 +179,7 @@ namespace TwitterClient.ViewModels
 
                 if (count < 1 || count > 40)
                 {
-                    MessageBox.Show("Input needs to be between 0 to 41.", "Invalid input");
+                    MessageBox.Show("Input needs to be between 0 and 41.", "Invalid input");
                     return;
                 }
 
@@ -304,7 +303,8 @@ namespace TwitterClient.ViewModels
                     _stream.RemoveFollow(long.Parse(((Follower)e.OldItems[0]).IdStr));
                     break;
                 case NotifyCollectionChangedAction.Reset:
-                    if (_stream.FollowingUserIds.Count > 0) _stream.ClearFollows();
+                    if (_stream.FollowingUserIds.Count > 0)
+                        _stream.ClearFollows();
                     break;
             }
         }

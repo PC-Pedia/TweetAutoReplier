@@ -17,8 +17,8 @@ namespace TwitterClient.ViewModels
 
         public MainWindowViewModel(MainWindow view)
         {
-            view.Closed += viewClosed;
             view.Loaded += viewLoaded;
+            view.Closed += viewClosed;
 
             ImportClickCommand = new RelayCommand<object>(ImportClicked);
             ExitEventCommand = new RelayCommand<object>(ExitClicked);
