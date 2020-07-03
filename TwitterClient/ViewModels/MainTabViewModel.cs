@@ -39,9 +39,9 @@ namespace TwitterClient.ViewModels
             StopStreamCommand = new RelayCommand(StopStreamClicked);
 
             AddFollowerCommand = new RelayCommand(AddFollowerClicked);
-            EditFollowerCommand = new GenericRelayCommand<Follower> { ExecuteDelegate = x => EditFollowerClicked(x) };
-            DeleteFollowerCommand = new GenericRelayCommand<Follower> { ExecuteDelegate = x => DeleteFollowerClicked(x) };
-            GetTweetFollowerCommand = new GenericRelayCommand<Follower> { ExecuteDelegate = x => GetTweetClicked(x) };
+            EditFollowerCommand = new GenericRelayCommand<Follower>(EditFollowerClicked);
+            DeleteFollowerCommand = new GenericRelayCommand<Follower>(DeleteFollowerClicked);
+            GetTweetFollowerCommand = new GenericRelayCommand<Follower>(GetTweetClicked);
         }
 
         private string _screenName;
@@ -155,11 +155,9 @@ namespace TwitterClient.ViewModels
             if (_tabs.MessageTabViewModel.MessageList.Count > 0)
                 _tabs.MessageTabViewModel.MessageList.Clear();
 
-            follower.Messages.ForEach(x =>
-            {
+            follower.Messages.ForEach(x => {
                 _tabs.MessageTabViewModel.MessageList.Add(x);
-            }
-            );
+            });
         }
 
         private void GetTweetClicked(Follower follower)

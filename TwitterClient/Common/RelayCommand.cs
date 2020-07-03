@@ -48,5 +48,15 @@ namespace TwitterClient.Common
         {
             ExecuteDelegate?.Invoke((T)parameter);
         }
+
+        public GenericRelayCommand(Action<T> executeDelegate)
+        {
+            ExecuteDelegate = executeDelegate;
+        }
+
+        public GenericRelayCommand(Action<T> executeDelegate, Predicate<T> canExecuteDelegate) : this(executeDelegate)
+        {
+            CanExecuteDelegate = canExecuteDelegate;
+        }
     }
 }

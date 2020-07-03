@@ -18,10 +18,10 @@ namespace TwitterClient.ViewModels
             _charctersLeft = Convert.ToString(MaxCharLimit);
 
             AddMessageCommand = new RelayCommand(AddMessageClicked);
-            EditMessageCommand = new RelayCommand(EditMessageClicked);
-            UpdateMessageCommand = new RelayCommand(UpdateMessageClicked);
-            DeleteMessageCommand = new RelayCommand(DeleteMessageClicked);
             ClearMessagesCommand = new RelayCommand(ClearMessagesClicked);
+            UpdateMessageCommand = new RelayCommand(UpdateMessageClicked);
+            DeleteMessageCommand = new GenericRelayCommand<int>(DeleteMessageClicked);
+            EditMessageCommand = new GenericRelayCommand<int>(EditMessageClicked);
         }
 
         private string _message;
@@ -34,7 +34,7 @@ namespace TwitterClient.ViewModels
             set
             {
                 _message = value;
-                RaisePropChanged("MessageString");
+                RaisePropChanged();
                 CharactersLeft = (MaxCharLimit - value.Length).ToString();
             }
         }
@@ -49,22 +49,16 @@ namespace TwitterClient.ViewModels
             set
             {
                 _charctersLeft = value;
-                RaisePropChanged("CharactersLeft");
+                RaisePropChanged();
             }
         }
 
-        public int MaxCharLimit
-        {
-            get
-            {
-                return General.MaxMessageLength;
-            }
-        }
+        public int MaxCharLimit => General.MaxMessageLength;
 
         private void AddMessageClicked(object obj)
         {
             MessageList.Add(MessageString);
-            MessageString = String.Empty;
+            MessageString = "";
         }
 
         private int _idxMessage;
@@ -75,15 +69,15 @@ namespace TwitterClient.ViewModels
             MessageString = "";
         }
 
-        private void EditMessageClicked(object obj)
+        private void EditMessageClicked(int index)
         {
-            MessageString = MessageList.ElementAt((int)obj);
-            _idxMessage = (int)obj;
+            MessageString = MessageList.ElementAt(index);
+            _idxMessage = index;
         }
 
-        private void DeleteMessageClicked(object obj)
+        private void DeleteMessageClicked(int index)
         {
-            MessageList.RemoveAt((int)obj);
+            MessageList.RemoveAt(index);
         }
 
         private void ClearMessagesClicked(object obj)
