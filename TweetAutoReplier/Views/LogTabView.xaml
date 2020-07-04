@@ -7,8 +7,8 @@
              Width="350" 
              Height="350">
     <UserControl.Content>
-        <Grid Name="LogGrid">
-            <ListView ItemsSource="{Binding LogList}">
+        <Grid>
+            <ListView ItemsSource="{Binding Logs}">
 
                 <ListView.ItemContainerStyle>
                     <Style TargetType="{x:Type ListViewItem}">
@@ -18,7 +18,7 @@
 
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="Output" Width="250" DisplayMemberBinding="{Binding LogData}"  />
+                        <GridViewColumn Header="Output" Width="250" DisplayMemberBinding="{Binding Text}"  />
                     </GridView>
                 </ListView.View>
             </ListView>

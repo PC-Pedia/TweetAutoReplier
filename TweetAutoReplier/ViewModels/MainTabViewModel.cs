@@ -226,8 +226,6 @@ namespace TweetAutoReplier.ViewModels
         {
             if (StreamActive)
                 _stream.Stop();
-            else
-                MessageBox.Show("Stream already stopped.");
         }
 
         private async Task<long> GetUserId(string name)
