@@ -27,10 +27,7 @@ namespace TweetAutoReplier.ViewModels
         private string _message;
         public string MessageString
         {
-            get
-            {
-                return _message;
-            }
+            get => _message;
             set
             {
                 _message = value;
@@ -42,10 +39,7 @@ namespace TweetAutoReplier.ViewModels
         private string _charctersLeft;
         public string CharactersLeft
         {
-            get
-            {
-                return $"{_charctersLeft} characters left.";
-            }
+            get => $"{_charctersLeft} characters left.";
             set
             {
                 _charctersLeft = value;

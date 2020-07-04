@@ -51,10 +51,7 @@ namespace TweetAutoReplier.ViewModels
         private string _screenName;
         public string ScreenName
         {
-            get
-            {
-                return _screenName;
-            }
+            get => _screenName;
             set
             {
                 _screenName = value;
@@ -65,10 +62,7 @@ namespace TweetAutoReplier.ViewModels
         private string _filter;
         public string Filter
         {
-            get
-            {
-                return _filter;
-            }
+            get => _filter;
             set
             {
                 _filter = value;
@@ -79,10 +73,7 @@ namespace TweetAutoReplier.ViewModels
         private bool _displayTime;
         public bool DisplayTime
         {
-            get
-            {
-                return _displayTime;
-            }
+            get => _displayTime;
             set
             {
                 _displayTime = value;
