@@ -226,6 +226,8 @@ namespace TweetAutoReplier.ViewModels
         {
             if (StreamActive)
                 _stream.Stop();
+            else
+                MessageBox.Show("Stream already stopped.");
         }
 
         private async Task<long> GetUserId(string name)
@@ -291,10 +293,9 @@ namespace TweetAutoReplier.ViewModels
                         reply += $" // {time}";
                     }
 
-                    PublishTweetParameters publishTweetParameters = new PublishTweetParameters()
+                    PublishTweetParameters publishTweetParameters = new PublishTweetParameters(reply)
                     {
-                        InReplyToTweetId = tweet.Id,
-                        Text = reply
+                        InReplyToTweetId = tweet.Id
                     };
 
                     _tabs.Client.Tweets.PublishTweetAsync(publishTweetParameters);
