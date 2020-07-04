@@ -4,6 +4,7 @@
         xmlns:v="clr-namespace:TweetAutoReplier.Views"
         Height="450"
         Width="385"
+        Icon="../icon.ico"
         ResizeMode="NoResize"
         Title="{Binding Title}">
     <Window.Content>
