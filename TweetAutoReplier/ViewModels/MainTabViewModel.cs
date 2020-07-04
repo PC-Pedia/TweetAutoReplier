@@ -5,17 +5,18 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
-using Tweetinvi;
-using Tweetinvi.TweetAutoReplier;
+using TweetAutoReplier.Common;
+using TweetAutoReplier.Models;
+using Tweetinvi.Client;
 using Tweetinvi.Core.Models;
 using Tweetinvi.Events;
 using Tweetinvi.Models;
+using Tweetinvi.Parameters;
 using Tweetinvi.Streaming;
-using TweetAutoReplier.Common;
-using TweetAutoReplier.Models;
 
 namespace TweetAutoReplier.ViewModels
 {
@@ -30,8 +31,8 @@ namespace TweetAutoReplier.ViewModels
         {
             _tabs = tabs;
 
-            _stream = Stream.CreateFilteredStream();
-            _stream.StreamStopped += StreamStopped;
+            _stream = _tabs.Client.Streams.CreateFilteredStream();
+            _stream.StreamStopped += StreamOnStreamStopped;
             _stream.StreamStarted += StreamStarted;
             _stream.MatchingTweetReceived += TweetReceived;
 
@@ -91,7 +92,7 @@ namespace TweetAutoReplier.ViewModels
 
         private bool StreamActive => _stream.StreamState == StreamState.Running;
 
-        private void AddFollowerClicked(object obj)
+        private async void AddFollowerClicked(object obj)
         {
             if (StreamActive)
             {
@@ -109,9 +110,9 @@ namespace TweetAutoReplier.ViewModels
 
             if (follower == null)
             {
-                long id;
+                long id = await GetUserId(ScreenName);
 
-                if ((id = GetUserId(ScreenName)) == 0)
+                if (id == 0)
                     return;
 
                 follower = new Follower
@@ -164,7 +165,7 @@ namespace TweetAutoReplier.ViewModels
             });
         }
 
-        private void GetTweetClicked(Follower follower)
+        private async void GetTweetClicked(Follower follower)
         {
             string choice = Interaction.InputBox(
                 "How many tweets do you want to retrieve?",
@@ -186,8 +187,13 @@ namespace TweetAutoReplier.ViewModels
                     return;
                 }
 
+                GetUserTimelineParameters getUserTimelineParameters = new GetUserTimelineParameters(follower.ScreenName)
+                {
+                    PageSize = count
+                };
+
                 System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
-                var tweets = Timeline.GetUserTimeline(follower.ScreenName, count);
+                var tweets = await _tabs.Client.Timelines.GetUserTimelineAsync(getUserTimelineParameters);
                 System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
 
                 foreach (ITweet tweet in tweets)
@@ -213,26 +219,26 @@ namespace TweetAutoReplier.ViewModels
                 return;
             }
 
-            await _stream.StartStreamMatchingAllConditionsAsync();
+            await _stream.StartMatchingAllConditionsAsync();
         }
 
         private void StopStreamClicked(object obj)
         {
             if (StreamActive)
-                _stream.StopStream();
+                _stream.Stop();
         }
 
-        private long GetUserId(string name)
+        private async Task<long> GetUserId(string name)
         {
+            if (string.IsNullOrWhiteSpace(name))
+                return 0; 
+
             try
             {
-                if (!string.IsNullOrWhiteSpace(name))
-                {
-                    System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
-                    IUser user = User.GetUserFromScreenName(name);
-                    System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
-                    return user.Id;
-                }
+                System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
+                IUser user = await _tabs.Client.Users.GetUserAsync(name);
+                System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
+                return user.Id;
             }
             catch
             {
@@ -240,8 +246,6 @@ namespace TweetAutoReplier.ViewModels
                 MessageBox.Show("User does not exist.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return 0;
             }
-
-            return 0;
         }
 
         private void StreamStarted(object sender, EventArgs e)
@@ -249,7 +253,7 @@ namespace TweetAutoReplier.ViewModels
             _tabs.LogTabViewModel.GuiLog("Stream started.");
         }
 
-        private void StreamStopped(object sender, StreamExceptionEventArgs e)
+        private void StreamOnStreamStopped(object sender, StreamStoppedEventArgs e)
         {
             _tabs.LogTabViewModel.GuiLog("Stream stopped.");
         }
@@ -287,7 +291,13 @@ namespace TweetAutoReplier.ViewModels
                         reply += $" // {time}";
                     }
 
-                    new UsersClient().PublishTweetInReplyTo(reply, tweet.Id);
+                    PublishTweetParameters publishTweetParameters = new PublishTweetParameters()
+                    {
+                        InReplyToTweetId = tweet.Id,
+                        Text = reply
+                    };
+
+                    _tabs.Client.Tweets.PublishTweetAsync(publishTweetParameters);
 
                     string sent = $"Sent \"{reply}\" to {tweet.CreatedBy.ScreenName}";
                     _tabs.LogTabViewModel.GuiLog(sent);

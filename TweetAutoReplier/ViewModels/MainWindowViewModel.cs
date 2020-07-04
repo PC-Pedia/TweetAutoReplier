@@ -1,26 +1,29 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Input;
-using Tweetinvi;
 using TweetAutoReplier.Common;
 using TweetAutoReplier.Constants;
 using TweetAutoReplier.FileHandlers;
-using TweetAutoReplier.ViewModels;
 using TweetAutoReplier.Views;
-using Tweetinvi.Core.Models;
 
 namespace TweetAutoReplier.ViewModels
 {
     public class MainWindowViewModel : BaseViewModel, IAppTabsViewModels
     {
+        public Tweetinvi.TwitterClient Client { get; }
         public MainTabViewModel MainTabViewModel { get; }
         public MessageTabViewModel MessageTabViewModel { get; }
         public LogTabViewModel LogTabViewModel { get; }
 
-        public Tweetinvi.TwitterClient TweetAutoReplier;
-
         public MainWindowViewModel(MainWindow view)
         {
+            Client = new Tweetinvi.TwitterClient(
+                TwitterAuth.ConsumerKey,
+                TwitterAuth.ConsumerSecret,
+                TwitterAuth.AccessToken,
+                TwitterAuth.AccessTokenSecret
+            );
+
             view.Loaded += viewLoaded;
             view.Closed += viewClosed;
 
@@ -43,11 +46,9 @@ namespace TweetAutoReplier.ViewModels
             }
         }
 
-        private void viewLoaded(object sender, RoutedEventArgs e)
+        private async void viewLoaded(object sender, RoutedEventArgs e)
         {
-            CreateClient();();
-
-            var me = User.GetAuthenticatedUser();
+            var me = await Client.Users.GetAuthenticatedUserAsync();
 
             if (me != null)
                 Title += me.ScreenName;
@@ -77,16 +78,6 @@ namespace TweetAutoReplier.ViewModels
         private void ExitClicked(object obj)
         {
             Application.Current.Shutdown();
-        }
-
-        private void CreateClient()
-        {
-            TweetAutoReplier = new Tweetinvi.TweetAutoReplier(
-                TwitterAuth.ConsumerKey,
-                TwitterAuth.ConsumerSecret,
-                TwitterAuth.AccessToken,
-                TwitterAuth.AccessTokenSecret
-            );
         }
 
         public ICommand ImportClickCommand { get; set; }
