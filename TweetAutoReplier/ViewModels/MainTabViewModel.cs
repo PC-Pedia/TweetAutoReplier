@@ -205,7 +205,7 @@ namespace TweetAutoReplier.ViewModels
             }
         }
 
-        private async void StartStreamClicked(object obj)
+        private void StartStreamClicked(object obj)
         {
             if (_stream.FollowingUserIds.Count == 0)
             {
@@ -219,7 +219,7 @@ namespace TweetAutoReplier.ViewModels
                 return;
             }
 
-            await _stream.StartMatchingAllConditionsAsync();
+            _stream.StartMatchingAllConditionsAsync();
         }
 
         private void StopStreamClicked(object obj)
