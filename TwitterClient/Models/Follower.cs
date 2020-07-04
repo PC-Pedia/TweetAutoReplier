@@ -8,7 +8,7 @@ namespace TwitterClient.Models
         private string _screenName;
         public string ScreenName
         {
-            get { return _screenName; }
+            get => _screenName;
             set { _screenName = value; RaisePropChanged(); }
         }
 
@@ -16,7 +16,7 @@ namespace TwitterClient.Models
         private string _idStr;
         public string IdStr
         {
-            get { return _idStr; }
+            get => _idStr;
             set { _idStr = value; RaisePropChanged(); }
         }
 
@@ -24,7 +24,7 @@ namespace TwitterClient.Models
         private string _noOfReplies;
         public string NoOfReplies
         {
-            get { return _noOfReplies; }
+            get => _noOfReplies;
             set { _noOfReplies = value; RaisePropChanged(); }
         }
 
@@ -32,7 +32,7 @@ namespace TwitterClient.Models
         private string _filter;
         public string Filter
         {
-            get { return _filter; }
+            get => _filter;
             set { _filter = value; RaisePropChanged(); }
         }
 
@@ -40,7 +40,7 @@ namespace TwitterClient.Models
         private string _displayTime;
         public string DisplayTime
         {
-            get { return _displayTime; }
+            get => _displayTime;
             set { _displayTime = value; RaisePropChanged(); }
         }
 

@@ -31,10 +31,7 @@ namespace TwitterClient.ViewModels
         private string title = "Tweet Auto Reply - ";
         public string Title
         {
-            get
-            {
-                return title;
-            }
+            get => title;
             set
             {
                 title = value;
