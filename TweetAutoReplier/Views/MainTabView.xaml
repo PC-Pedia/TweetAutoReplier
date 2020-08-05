@@ -10,24 +10,9 @@
         <StackPanel>
 
             <StackPanel Margin="10" Orientation="Horizontal">
-                <Button 
-                x:Name="btnStartStream" 
-                Content="Start" Margin="5" 
-                Width="80" 
-                Height="30"
-                Command="{Binding StartStreamCommand}" />
-                <Button 
-                x:Name="btnStopStream" 
-                Content="Stop"
-                Margin="5" 
-                Width="80" 
-                Command="{Binding StopStreamCommand}"/>
-                <Button 
-                x:Name="btnAddFollower"
-                Content="Add Follower" 
-                Margin="5" 
-                Width="85" 
-                Command="{Binding AddFollowerCommand}" />
+                <Button Content="Start" Margin="5" Width="80" Height="30" Command="{Binding StartStreamCommand}" />
+                <Button Content="Stop" Margin="5" Width="80" Command="{Binding StopStreamCommand}"/>
+                <Button Content="Add Follower" Margin="5" Width="85" Command="{Binding AddFollowerCommand}" />
             </StackPanel>
 
             <StackPanel Margin="10" HorizontalAlignment="Left">
@@ -35,12 +20,12 @@
 
                     <StackPanel>
                         <Label>Screen Name:</Label>
-                        <TextBox x:Name="txtScreenName" Margin="5" Width="120" Text="{Binding ScreenName}"></TextBox>
+                        <TextBox Margin="5" Width="120" Text="{Binding ScreenName}"></TextBox>
                     </StackPanel>
 
                     <StackPanel>
                         <Label>Filter (RegEx):</Label>
-                        <TextBox x:Name="txtFilter" Margin="5" Width="120" Text="{Binding Filter}"></TextBox>
+                        <TextBox Margin="5" Width="120" Text="{Binding Filter}"></TextBox>
                     </StackPanel>
 
                 </StackPanel>
@@ -54,13 +39,7 @@
             <StackPanel Margin="10">
                 <Label >Followers List:</Label>
 
-                <ListView 
-                x:Name="lvFollowers" 
-                SelectionMode="Single" 
-                ContextMenuOpening="lvFollowers_ContextMenuOpening" 
-                Width="auto" 
-                Height="150" 
-                ItemsSource="{Binding Followers}"  >
+                <ListView x:Name="lvFollowers" SelectionMode="Single" ContextMenuOpening="lvFollowers_ContextMenuOpening" Width="auto" Height="150" ItemsSource="{Binding Followers}"  >
 
                     <ListView.ContextMenu>
                         <ContextMenu>

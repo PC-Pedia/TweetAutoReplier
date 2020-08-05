@@ -18,7 +18,7 @@
 
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="Output" Width="250" DisplayMemberBinding="{Binding Text}"  />
+                        <GridViewColumn Header="Output" Width="250" DisplayMemberBinding="{Binding Text}" />
                     </GridView>
                 </ListView.View>
             </ListView>

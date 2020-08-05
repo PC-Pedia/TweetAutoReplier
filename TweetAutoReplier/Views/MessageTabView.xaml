@@ -7,9 +7,15 @@
              Width="350" 
              Height="350">
     <UserControl.Content>
-        <StackPanel>
+        <Border Padding="20">
+            <Grid>
 
-            <StackPanel Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
                 <ListView x:Name="lvMessages" SelectionMode="Single" ContextMenuOpening="lvMessages_ContextMenuOpening" Grid.Row="0" Height="115" ItemsSource="{Binding MessageList}" >
 
                     <ListView.ContextMenu>
@@ -26,40 +32,19 @@
                     </ListView.View>
 
                 </ListView>
-            </StackPanel>
 
-            <StackPanel Margin="10">
-                <TextBlock 
-                x:Name="lblCharsLeft"
-                Margin="5" 
-                Text="{Binding CharactersLeft, Mode=TwoWay}"/>
+                <StackPanel Grid.Row="1">
+                    <TextBlock Text="{Binding CharactersLeft, Mode=TwoWay}"/>
+                    <TextBox TextWrapping="Wrap" Height="115" Text="{Binding MessageString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" AcceptsTab="True" MaxLength="{Binding MaxCharLimit}"/>
+                </StackPanel>
 
-                <TextBox 
-                x:Name="txtMessage" 
-                TextWrapping="Wrap" 
-                Height="115" 
-                Text="{Binding MessageString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                AcceptsReturn="True" 
-                AcceptsTab="True" 
-                MaxLength="{Binding MaxCharLimit}"/>
+                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button Content="Add" Height="30" Width="80" Command="{Binding AddMessageCommand}"/>
+                    <Button Content="Update" Margin="10,0,0,0" Height="30" Width="80" Command="{Binding UpdateMessageCommand}"/>
+                    <Button Content="Clear" Margin="10,0,0,0" Height="30" Width="80" Command="{Binding ClearMessagesCommand}"/>
+                </StackPanel>
 
-            </StackPanel>
-
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button 
-            x:Name="btnAddMessage" 
-            Content="Add" 
-            Height="30" 
-            Width="80" 
-            Command="{Binding AddMessageCommand}"/>
-                <Button 
-            x:Name="btnUpdateMessage" 
-            Content="Update" Margin="5" Width="80" Command="{Binding UpdateMessageCommand}"/>
-                <Button 
-            x:Name="btnClearMessages" 
-            Content="Clear" Margin="5" Padding="5" Width="80" Command="{Binding ClearMessagesCommand}"/>
-            </StackPanel>
-
-        </StackPanel>
+            </Grid>
+        </Border>
     </UserControl.Content>
 </UserControl>
